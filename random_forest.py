@@ -1,150 +1,306 @@
+# =========================================================
+# RANDOM FOREST FORECASTING FOR PADDY PRODUCTION
+# WITH COMPLETE MODEL EVALUATION
+# =========================================================
+
+# ======================
+# 1. IMPORT LIBRARIES
+# ======================
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
+
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, mean_absolute_error
 
+from sklearn.metrics import (
+    mean_squared_error,
+    mean_absolute_error,
+    r2_score
+)
 
 # ======================
-# 1. LOAD DATA
+# 2. LOAD DATA
 # ======================
+
 data = pd.read_excel("df.xlsx")
 
-df = data.iloc[27:, :]  # remove unwanted rows
+# Remove unwanted rows
+df = data.iloc[27:, :]
+
+# Convert Date column to datetime
+df['Date'] = pd.to_datetime(df['Date'])
+
+# Sort values by date
 df = df.sort_values('Date')
+
+# Set Date as index
 df.set_index('Date', inplace=True)
 
-ts = df["Production"]
+# Target variable
+ts = df['Production']
 
 
 # ======================
-# 2. TRAIN / TEST SPLIT
+# 3. CREATE LAG FEATURES
 # ======================
-train_size = int(len(ts) * 0.8)
 
-train = ts.iloc[:train_size]
-test  = ts.iloc[train_size:]
+df_rf = pd.DataFrame(ts)
 
+# Create lag variables
+df_rf['lag1'] = df_rf['Production'].shift(1)
+df_rf['lag2'] = df_rf['Production'].shift(2)
+df_rf['lag3'] = df_rf['Production'].shift(3)
 
-# ======================
-# 3. NORMALIZATION
-# ======================
-scaler = MinMaxScaler(feature_range=(-1, 1))
-
-train_data = train.values.reshape(-1, 1)
-train_scaled = scaler.fit_transform(train_data).flatten()
+# Remove missing values
+df_rf.dropna(inplace=True)
 
 
 # ======================
-# 4. CREATE SEQUENCES
+# 4. DEFINE X AND y
 # ======================
-def create_inout_sequences(input_data, seq_len):
-    X, y = [], []
-    for i in range(len(input_data) - seq_len):
-        X.append(input_data[i:i+seq_len])   # features (past values)
-        y.append(input_data[i+seq_len])      # label (next value)
-    return np.array(X), np.array(y)
 
-seq_len = 5
-X_train, y_train = create_inout_sequences(train_scaled, seq_len)
+X = df_rf[['lag1', 'lag2', 'lag3']]
+
+y = df_rf['Production']
 
 
 # ======================
-# 5. RANDOM FOREST MODEL
+# 5. TRAIN / TEST SPLIT
 # ======================
-model = RandomForestRegressor(
-    n_estimators=100,    # number of trees
-    max_depth=10,        # depth of each tree
+
+train_size = int(len(df_rf) * 0.8)
+
+X_train = X.iloc[:train_size]
+X_test  = X.iloc[train_size:]
+
+y_train = y.iloc[:train_size]
+y_test  = y.iloc[train_size:]
+
+
+# ======================
+# 6. BUILD RANDOM FOREST MODEL
+# ======================
+
+rf_model = RandomForestRegressor(
+    n_estimators=200,
+    max_depth=5,
     random_state=42
+)
+
+# Train model
+rf_model.fit(X_train, y_train)
+
+
+# ======================
+# 7. PREDICTIONS
+# ======================
+
+y_pred = rf_model.predict(X_test)
+
+
+# ======================
+# 8. MODEL EVALUATION
+# ======================
+
+# RMSE
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+
+# MAE
+mae = mean_absolute_error(y_test, y_pred)
+
+# MAPE
+mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100
+
+# R² Score
+r2 = r2_score(y_test, y_pred)
+
+# Correlation
+correlation = np.corrcoef(y_test, y_pred)[0,1]
+
+# Print evaluation metrics
+print("===================================")
+print(" RANDOM FOREST MODEL EVALUATION")
+print("===================================")
+
+print(f"RMSE        : {rmse:.2f}")
+print(f"MAE         : {mae:.2f}")
+print(f"MAPE        : {mape:.2f}%")
+print(f"R² Score    : {r2:.4f}")
+print(f"Correlation : {correlation:.4f}")
+
+
+# ======================
+# 9. ACTUAL VS PREDICTED PLOT
+# ======================
+
+plt.figure(figsize=(12,6))
+
+plt.plot(
+    y_test.index,
+    y_test,
+    label='Actual',
+    marker='o',
+    linewidth=2
+)
+
+plt.plot(
+    y_test.index,
+    y_pred,
+    label='Predicted',
+    marker='o',
+    linestyle='--',
+    linewidth=2
+)
+
+plt.xlabel("Year")
+plt.ylabel("Production")
+
+plt.title("Actual vs Predicted Production")
+
+plt.legend()
+
+plt.grid(True)
+
+plt.show()
+
+
+# ======================
+# 10. RESIDUAL ANALYSIS
+# ======================
+
+residuals = y_test - y_pred
+
+plt.figure(figsize=(10,5))
+
+plt.scatter(y_pred, residuals)
+
+plt.axhline(y=0, color='red', linestyle='--')
+
+plt.xlabel("Predicted Values")
+plt.ylabel("Residuals")
+
+plt.title("Residual Plot")
+
+plt.grid(True)
+
+plt.show()
+
+
+# ======================
+# 11. FEATURE IMPORTANCE
+# ======================
+
+importance = pd.DataFrame({
+    'Feature': X.columns,
+    'Importance': rf_model.feature_importances_
+})
+
+print("\nFeature Importance")
+print(importance)
+
+
+# ======================
+# 12. FEATURE IMPORTANCE PLOT
+# ======================
+
+importance.sort_values('Importance').plot(
+    x='Feature',
+    y='Importance',
+    kind='barh',
+    figsize=(8,5)
+)
+
+plt.xlabel("Importance")
+
+plt.title("Feature Importance")
+
+plt.grid(True)
+
+plt.show()
+
+
+# ======================
+# 13. FUTURE FORECASTING
+# ======================
+
+future_forecast = []
+
+# Get last 3 observations
+last_values = list(ts.tail(3))
+
+# Forecast next 5 years
+for i in range(5):
+
+    # Prepare input
+    X_future = np.array(last_values[-3:]).reshape(1, -1)
+
+    # Predict next value
+    next_pred = rf_model.predict(X_future)[0]
+
+    # Store prediction
+    future_forecast.append(next_pred)
+
+    # Update lag values
+    last_values.append(next_pred)
+
+
+# ======================
+# 14. CREATE FUTURE DATES
+# ======================
+
+future_dates = pd.date_range(
+    start=ts.index[-1] + pd.DateOffset(years=1),
+    periods=5,
+    freq='Y'
 )
 
 
 # ======================
-# 6. TRAINING
+# 15. FORECAST DATAFRAME
 # ======================
-model.fit(X_train, y_train)
-print("✅ Random Forest training complete!")
 
+forecast_df = pd.DataFrame({
+    'Date': future_dates,
+    'Forecast': future_forecast
+})
 
-# ======================
-# 7. PREDICTION
-# ======================
-predictions = []
-
-# Start with last seq_len values from training data
-test_input = list(train_scaled[-seq_len:])
-
-for i in range(len(test)):
-    x_input = np.array(test_input[-seq_len:]).reshape(1, -1)
-    y_pred = model.predict(x_input)[0]
-    predictions.append(y_pred)
-    test_input.append(y_pred)   # append prediction for next step
+print("\nFuture Forecast")
+print(forecast_df)
 
 
 # ======================
-# 8. INVERSE TRANSFORM
+# 16. PLOT FORECAST
 # ======================
-predictions = np.array(predictions).reshape(-1, 1)
-predictions = scaler.inverse_transform(predictions)
 
+plt.figure(figsize=(12,6))
 
-# ======================
-# 9. PLOT RESULTS
-# ======================
-train_plot = ts[:train_size]
-test_plot  = ts[train_size:]
+# Historical data
+plt.plot(
+    ts.index,
+    ts,
+    label='Historical Data',
+    marker='o',
+    linewidth=2
+)
 
-plt.figure(figsize=(12, 6))
-plt.plot(train_plot.index, train_plot.values, label="Train Data",        color="blue")
-plt.plot(test_plot.index,  test_plot.values,  label="Actual Test Data",  color="green")
-plt.plot(test_plot.index,  predictions,       label="Predicted Data",    color="red")
+# Forecast values
+plt.plot(
+    forecast_df['Date'],
+    forecast_df['Forecast'],
+    label='Forecast',
+    marker='o',
+    linestyle='--',
+    linewidth=2
+)
 
-plt.title("Random Forest Time Series Forecasting")
-plt.xlabel("Date")
+plt.xlabel("Year")
 plt.ylabel("Production")
+
+plt.title("Random Forest Future Forecast")
+
 plt.legend()
-plt.show()
 
+plt.grid(True)
 
-# ======================
-# 10. EVALUATION METRICS
-# ======================
-y_true = test_plot.values
-y_pred = predictions.reshape(-1)
-
-mae  = mean_absolute_error(y_true, y_pred)
-mse  = mean_squared_error(y_true, y_pred)
-rmse = np.sqrt(mse)
-mape = np.mean(np.abs((y_true - y_pred) / (y_true + 1e-8))) * 100
-
-print("\n📊 Model Evaluation Metrics")
-print(f"MAE  : {mae:.4f}")
-print(f"RMSE : {rmse:.4f}")
-print(f"MSE  : {mse:.4f}")
-print(f"MAPE : {mape:.2f}%")
-
-
-# ======================
-# 11. RESIDUAL ERROR PLOT
-# ======================
-residuals = y_true - y_pred
-
-plt.figure(figsize=(10, 4))
-plt.plot(residuals, color="purple")
-plt.axhline(0, linestyle="--", color="black")
-plt.title("Residual Errors (Actual - Predicted)")
-plt.xlabel("Time Step")
-plt.ylabel("Error")
-plt.show()
-
-
-# ======================
-# 12. ERROR DISTRIBUTION
-# ======================
-plt.figure(figsize=(8, 4))
-plt.hist(residuals, bins=20, color="gray", edgecolor="black")
-plt.title("Error Distribution")
-plt.xlabel("Error")
-plt.ylabel("Frequency")
 plt.show()
