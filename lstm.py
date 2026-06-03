@@ -1,22 +1,9 @@
 # =========================================
-# 1. IMPORT LIBRARIES
-# =========================================
-
-import pandas as pd
-import numpy as np
-import torch
-import torch.nn as nn
-import matplotlib.pyplot as plt
-
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_absolute_error, mean_squared_error,r2_score
-
-# =========================================
 # 2. LOAD DATA
 # =========================================
 
 # Load Excel dataset
-data = pd.read_excel("df.xlsx")
+data = pd.read_excel(r"../df.xlsx")
 
 # Remove unwanted rows (adjust if needed)
 df = data.iloc[27:, :]
@@ -34,12 +21,13 @@ ts = df["Production"]
 # 3. TRAIN / VALIDATION / TEST SPLIT
 # =========================================
 
-train_size = int(len(ts) * 0.7)
+
+train_size = int(len(ts) * 0.8)
 val_size = int(len(ts) * 0.1)
 test_size = int(len(ts)*0.2)
 train = ts.iloc[:train_size]
-validation = ts.iloc[train_size:train_size + val_size]
-test = ts.iloc[train_size+ val_size:]
+validation = ts.iloc[train_size - val_size:]
+test = ts.iloc[train_size:]
 
 # =========================================
 # 4. NORMALIZATION (VERY IMPORTANT)
@@ -163,7 +151,7 @@ for epoch in range(epochs):
     print(f"Epoch {epoch+1}/{epochs} | "
           f"Train Loss: {train_losses[-1]:.6f} | "
           f"Val Loss: {val_losses[-1]:.6f}")
-    
+
 # =========================================
 # 8. LOSS CURVES
 # =========================================
@@ -211,15 +199,21 @@ predictions = scaler.inverse_transform(predictions)
 
 plt.figure(figsize=(12,6))
 
-plt.plot(train.index, train.values, label="Train")
+plt.plot(train.index, train.values, label="Train Data",marker="o",linewidth=1.5)
 # plt.plot(validation.index, validation.values, label="Validation")
-plt.plot(test.index, test.values, label="Actual Test")
-plt.plot(test.index, predictions, label="Predicted")
+plt.plot(test.index, test.values, label="Test Data", color="green",marker="o",linewidth=1.5)
+plt.plot(test.index, predictions, label="Predicted Data", color="red",marker="o",linewidth=1.5,linestyle='--')
 
-plt.title("LSTM Time Series Forecasting")
-plt.xlabel("Date")
-plt.ylabel("Production")
-plt.legend()
+plt.title("LSTM Time Series Forecasting", pad =20)
+plt.xlabel("Year",fontsize=14,fontweight='bold',fontname='Times New Roman')
+plt.ylabel("Production ('000 MT)",fontsize=14,fontweight='bold',fontname='Times New Roman')
+plt.xticks(rotation=45)
+
+plt.xticks(fontsize=13, fontname='Times New Roman')
+plt.yticks(fontsize=13, fontname='Times New Roman')
+plt.grid(axis='y')
+plt.ylim(500,)
+plt.legend(prop={'size': 12, 'family':'Times New Roman'} )
 plt.show()
 
 # =========================================
