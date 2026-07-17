@@ -105,7 +105,7 @@ Six forecasting models (ARIMA, SARIMA, Holt's Linear Trend, Holt-Winters Exponen
 
 ## Author
 
-**I. A. A. Wathsala**
+**I. A. A. Wathsala,**
 Department of Statistics, University of Sri Jayewardenepura, Sri Lanka
 
 Supervised by Mr. P. Dias (University of Sri Jayewardenepura) and Mr. S. D. S. Nimesha (Department of Census and Statistics)
