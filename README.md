@@ -1,8 +1,8 @@
 # Forecasting Paddy Production in Sri Lanka
 
-A comparative study of time series and machine learning models for forecasting paddy production, average yield, and sown extent in Sri Lanka, combined with an analysis of long-term farming practice trends.
+A comparative study of time series and machine learning models for forecasting paddy production, average yield and sown extent in Sri Lanka, combined with an analysis of long-term farming practice trends.
 
-> B.Sc. (Honours) in Applied Sciences — Department of Statistics, University of Sri Jayewardenepura, Sri Lanka
+> B.Sc. (Honours) in Applied Sciences - Department of Statistics, University of Sri Jayewardenepura, Sri Lanka
 > Carried out in collaboration with the Department of Census and Statistics, Sri Lanka
 
 ---
@@ -11,10 +11,10 @@ A comparative study of time series and machine learning models for forecasting p
 
 Rice is Sri Lanka's most important food crop, and accurate forecasts of paddy production are essential for food security planning. This project has two main goals:
 
-1. **Forecast** paddy production, average yield, and sown extent for both the Maha and Yala growing seasons, using seasonal data from 1992 to 2025.
-2. **Analyze** how key farming practices — sowing methods, fertilizer application, and weeding methods — have changed over time, and how they relate to one another.
+1. **Forecast** paddy production, average yield and sown extent for both the Maha and Yala growing seasons, using seasonal data from 1992 to 2025.
+2. **Analyze** how key farming practices — sowing methods, fertilizer application and weeding methods — have changed over time and how they relate to one another.
 
-Six forecasting models (ARIMA, SARIMA, Holt's Linear Trend, Holt-Winters Exponential Smoothing, LSTM, and Random Forest) were built and compared. A Vector Autoregression (VAR) model with Granger causality testing was used to study relationships between farming practice trends.
+Six forecasting models (ARIMA, SARIMA, Holt's Linear Trend, Holt-Winters Exponential Smoothing, LSTM and Random Forest) were built and compared. A Vector Autoregression (VAR) model with Granger causality testing was used to study relationships between farming practice trends.
 
 ## Data
 
@@ -27,7 +27,7 @@ Six forecasting models (ARIMA, SARIMA, Holt's Linear Trend, Holt-Winters Exponen
 
 **Pre-processing:** Data cleaned and indexed by date using `pandas`. Stationarity checked with the Augmented Dickey-Fuller (ADF) test; ACF/PACF plots used to support model order selection.
 
-**Train-test split:** 80:20 for ARIMA, SARIMA, Holt's, Holt-Winters, and Random Forest. A 70:10:20 train-validation-test split for LSTM.
+**Train-test split:** 80:20 for ARIMA, SARIMA, Holt's, Holt-Winters and Random Forest. A 70:10:20 train-validation-test split for LSTM.
 
 **Forecasting models:**
 | Model | Approach |
@@ -83,7 +83,7 @@ Six forecasting models (ARIMA, SARIMA, Holt's Linear Trend, Holt-Winters Exponen
 - **Fertilizer application:** chemical-only use dominated until around 2010, after which combined chemical-and-organic use grew steadily. The 2021–2022 chemical fertilizer ban caused a sharp, temporary surge in organic-only use and a collapse in chemical-only use.
 - **Sowing methods:** broadcasting remains dominant (over 90% of usage), though transplanting methods are slowly gaining ground.
 - **Weeding methods:** weedicide use rose from about 60% in the early 1990s to 80–90% in recent years, largely replacing hand weeding.
-- **VAR / Granger causality:** confirmed statistically significant predictive relationships between competing practices — for example, bidirectional causality between hand weeding and weedicide use, and broadcasting's changes helping predict future changes in transplanting.
+- **VAR / Granger causality:** confirmed statistically significant predictive relationships between competing practices - for example, bidirectional causality between hand weeding and weedicide use, and broadcasting's changes helping predict future changes in transplanting.
 
 ## Tech Stack
 
@@ -94,17 +94,6 @@ Six forecasting models (ARIMA, SARIMA, Holt's Linear Trend, Holt-Winters Exponen
 - **Machine learning:** `scikit-learn` (Random Forest, Grid Search, evaluation metrics)
 - **Deep learning:** `PyTorch` (LSTM), `Optuna` (hyperparameter tuning)
 
-## Repository Structure
-
-```
-├── data/                 # Raw and processed datasets
-├── notebooks/            # Analysis and modelling notebooks
-├── src/                  # Reusable scripts (pre-processing, models, evaluation)
-├── images/               # Charts and figures used in this README
-├── results/              # Saved model outputs and forecasts
-└── README.md
-```
-*(Update this section to match your actual folder layout.)*
 
 ## Recommendations
 
@@ -125,6 +114,3 @@ Supervised by Mr. P. Dias (University of Sri Jayewardenepura) and Mr. S. D. S. N
 
 This research was carried out in collaboration with the Department of Census and Statistics, Sri Lanka, which provided the dataset used in this study.
 
-## License
-
-*(Add a license here if you'd like others to reuse this code, e.g. MIT License.)*
