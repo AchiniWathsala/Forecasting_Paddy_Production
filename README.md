@@ -2,7 +2,7 @@
 
 A comparative study of time series and machine learning models for forecasting paddy production, average yield and sown extent in Sri Lanka, combined with an analysis of long-term farming practice trends.
 
-> B.Sc. (Honours) in Applied Sciences - Department of Statistics, University of Sri Jayewardenepura, Sri Lanka
+> B.Sc. (Honours) in Applied Sciences(Undergraduate Final Year Research Project) - Department of Statistics, University of Sri Jayewardenepura, Sri Lanka
 > Carried out in collaboration with the Department of Census and Statistics, Sri Lanka
 
 ---
@@ -105,7 +105,8 @@ Six forecasting models (ARIMA, SARIMA, Holt's Linear Trend, Holt-Winters Exponen
 
 ## Author
 
-**I. A. A. Wathsala,**
+I. A. A. Wathsala
+Undergraduate Student, B.Sc. (Honours) in Applied Sciences (Statistics)
 Department of Statistics, University of Sri Jayewardenepura, Sri Lanka
 
 Supervised by Mr. P. Dias (University of Sri Jayewardenepura) and Mr. S. D. S. Nimesha (Department of Census and Statistics)
